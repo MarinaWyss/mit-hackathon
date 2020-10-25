@@ -1,0 +1,214 @@
+---
+title: "Prisons & Covid"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(shiny)
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(tidyr)
+library(janitor)
+
+analysisData <- read.csv("data/analysisData.csv")
+pennsylvania <- read.csv("data/rubricPA.csv")
+pennsylvania$state <- "Pennsylvania"
+
+arkansas <- read.csv("data/rubricAR.csv")
+arkansas$state <- "Arkansas"
+
+stateData <- rbind(pennsylvania, arkansas)
+stateData$reported <- ifelse(stateData$reported == "Y", "Yes", "No")
+
+depVars <- c("residents_confirmed", "staff_confirmed", "resident_deaths",
+             "staff_deaths", "residents_recovered", "staff_recovered",
+             "residents_tested", "staff_tested", "residents_pending",
+             "staff_pending", "residents_negative", "staff_negative", 
+             "residents_quarantine", "staff_quarantine")
+
+indVars <- c("population_estimates_july_1_2019__v2019",
+             "persons_65_years_and_over_percent",
+             "white_alone_percent",
+             "black_or_african_american_alone_percent",
+             "american_indian_and_alaska_native_alone_percent",
+             "asian_alone_percent",
+             "native_hawaiian_and_other_pacific_islander_alone_percent",
+             "two_or_more_races_percent",
+             "hispanic_or_latino_percent",
+             "white_alone_not_hispanic_or_latino_percent",
+             "veterans_2014.2018",
+             "foreign_born_persons_percent_2014.2018",
+             "persons_per_household_2014.2018",
+             "language_other_than_english_spoken_at_home_percent_of_persons_age_5_years._2014.2018",
+             "households_with_a_computer_percent_2014.2018",
+             "households_with_a_broadband_internet_subscription_percent_2014.2018",
+             "high_school_graduate_or_higher_percent_of_persons_age_25_years._2014.2018",
+             "bachelor.s_degree_or_higher_percent_of_persons_age_25_years._2014.2018",
+             "with_a_disability_under_age_65_years_percent_2014.2018",
+             "persons__without_health_insurance_under_age_65_years_percent",
+             "median_household_income_in_2018_dollars_2014.2018",
+             "persons_in_poverty_percent",
+             "republican_governor",
+             "voted_trump_2016_percent",
+             "prison_rate_per_100k",
+             "total_incarcerated_persons" )
+```
+
+State Scorecard 
+======================================================================
+Inputs {.sidebar}
+----------------------------------------------------------------------
+```{r}
+
+selectInput("state", 
+            label = "Select a state to explore:", 
+            choices = c("Pennsylvania", "Arkansas"), 
+            selected = "Arkansas")
+
+```
+
+
+Column {data-width=750}
+----------------------------------------------------------------------
+
+### State Scorecard
+
+```{r}
+
+renderUI({
+  
+  notReportedBG <- function (x) cell_spec(x, background = ifelse(x == "No", "red", "white"))
+
+    HTML(
+    stateData %>% 
+      filter(state == input$state) %>% 
+      select(-state) %>% 
+      adorn_totals("row") %>% 
+      mutate_at(vars(c("reported")), 
+                funs(notReportedBG)) %>% 
+      kable(escape = FALSE) %>% 
+      kable_styling()
+
+)
+
+})
+
+```
+
+Column {data-width=250}
+----------------------------------------------------------------------
+
+### Covid-19 Response Score {.value-box}
+
+```{r}
+renderValueBox({
+  
+  vlDat <- stateData %>% 
+    filter(state == input$state) %>% 
+    summarise(sum(final_points)) %>% 
+    round(2)
+  
+  valueBox(
+    value = vlDat
+  )
+})
+```
+
+### Transparency Score (% of metrics with available data) {.value-box}
+```{r}
+renderValueBox({
+  
+  trnDat <- stateData %>% 
+    filter(state == input$state) %>% 
+    summarise(sum(!is.na(raw_value))/n()) %>% 
+    round(2)
+  
+  trnDat <- trnDat * 100
+  trnDat <- paste(as.character(trnDat), "%")
+  
+  valueBox(
+    value = trnDat
+  )
+})
+```
+
+### Score Comparison
+```{r}
+
+renderPlot({
+
+  avgScore <- stateData %>% 
+    group_by(state) %>% 
+    summarise(scores = sum(final_points)) %>% 
+    ungroup() %>% 
+    summarise(avg_score = mean(scores, na.rm = TRUE)) %>% 
+    round(2)
+  
+  score <- stateData %>% 
+    filter(state == input$state) %>% 
+    summarise(state_score = sum(final_points)) %>% 
+    round(2)
+  
+  pltData <- cbind(score, avgScore)
+  pltData <- as.data.frame(t(pltData))
+  colnames(pltData) <- "score"
+  pltData$score_type <- rownames(pltData)
+
+  ggplot(pltData, aes(x = score_type, y = score, fill = score_type)) +
+    geom_bar(stat = "identity") +
+    scale_fill_manual(name = "",
+                      labels = c("Average Score: All States", "State Score"),
+                      values = c("gray", "#5ea0e7")) +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          legend.position = "none") +
+    geom_text(aes(label = score), vjust = 2)
+})
+
+```
+
+
+
+Exploratory Plot
+======================================================================
+Inputs {.sidebar}
+----------------------------------------------------------------------
+
+```{r}
+
+selectInput("depVar", 
+            label = "Select a dependent variable:", 
+            choices = depVars, 
+            selected = "residents_confirmed")
+
+selectInput("indVar", 
+            label = "Select an independent variable:", 
+            choices = indVars, 
+            selected = "voted_trump_2016_percent")
+```
+
+Column
+----------------------------------------------------------------------
+
+### Exploratory Scatter Plot
+
+```{r}
+
+renderPlot({
+
+  x <- input$indVar
+  y <- input$depVar
+
+  ggplot(analysisData, aes_string(x = x, y = y)) +
+    geom_point(aes(color = state), size = 5) +
+    scale_color_discrete(name = "State", 
+                         labels = c("Arkansas", "New Mexico", "Pennsylvania", "Washington"))
+})
+
+```

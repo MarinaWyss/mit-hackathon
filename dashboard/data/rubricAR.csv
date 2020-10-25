@@ -1,0 +1,33 @@
+topic,reported,raw_value,possible_points,final_points
+Bi-annual check-ups of the ventilation system and maintenance as needed,Y,Yes,5,5
+Regular cleaning and disinfection practices within facility,N,NA,5,0
+Masks provided,Y,Yes,3,3
+Hand sanitizer provided,N,NA,3,0
+Disinfectant wipes provided,N,NA,3,0
+Soap and water available,N,NA,3,0
+Allow 6 ft between bunks,N,NA,4,0
+Staggered meal and recreation times,N,NA,3,0
+Visits reduced,Y,Yes,4,4
+Prison capacity utilized,N,NA,4,0
+"Expedited release of inmates without COVID-19 with minor, non-violent offenses",Y,Yes,5,5
+All inmates tested weekly,N,NA,2,0
+All staff tested weekly,N,NA,2,0
+Testing of asymptomatic inmates,N,NA,2,0
+Proactive testing of those with pre-existing conditions,N,NA,4,0
+Testing before release,Y,Yes,3,3
+Testing of inmates who are new to the facility,Y,Yes,3,3
+Testing in cases of exposure and suspected exposure,N,NA,2,0
+Total number of tests done per inmate,Y,1.08,4,0.139354839
+"Virus reproduction rate reported to the public, the state government, and inmates",N,NA,3,0
+"Positivity rates per state reported to the public, the state government, and inmates",Y,Yes,2,2
+"Recovered rates per state reported to the public, the state government, and inmates",Y,Yes,2,2
+"Death rates per state reported to the public, the state government, and inmates",Y,Yes,2,2
+"Are all state incarceration facilities reporting their COVID-19 data to the public, the state government, and inmates?",N,NA,2,0
+Covid-19 prevention education for all inmates,N,NA,2,0
+"Number of medical professionals per 1,000 inmates",N,NA,3,0
+Race recorded for COVID-19 cases,N,NA,4,0
+Ethnicity recorded for COVID-19 cases,N,NA,4,0
+Socioeconomic status (prior to incarceration) recorded for COVID-19 cases,N,NA,2,0
+"Chronic Disease (i.e. hypertension, cancer, diabetes, heart disease, obesity) in the facility",N,NA,4,0
+"Prior respiratory conditions (i.e. COPD, asthma) in the facility",N,NA,4,0
+Immune deficiency in the facility,N,NA,2,0

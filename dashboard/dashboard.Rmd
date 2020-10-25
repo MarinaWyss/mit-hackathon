@@ -1,5 +1,5 @@
 ---
-title: "Prisons & Covid"
+title: "Prisons & Covid-19"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -84,17 +84,24 @@ Column {data-width=750}
 renderUI({
   
   notReportedBG <- function (x) cell_spec(x, background = ifelse(x == "No", "red", "white"))
-
+  
     HTML(
     stateData %>% 
       filter(state == input$state) %>% 
-      select(-state) %>% 
+      mutate(final_points = round(final_points, 1)) %>% 
+      rename("Metric" = topic,
+             "Reported?" = reported,
+             "Possible Points" = possible_points,
+             "Final Points" = final_points) %>% 
+      select(-state, -raw_value) %>% 
       adorn_totals("row") %>% 
-      mutate_at(vars(c("reported")), 
+      mutate_at(vars(c("Reported?")), 
                 funs(notReportedBG)) %>% 
-      kable(escape = FALSE) %>% 
-      kable_styling()
-
+      kable(escape = FALSE, format = "html") %>% 
+      kable_styling() %>% 
+      pack_rows("Sanitation, Containment, & Transmission", 1, 11) %>% 
+      pack_rows("Testing", 12, 24) %>% 
+      pack_rows("Addressing Vulnerability & Promoting Equity", 25, 32)
 )
 
 })

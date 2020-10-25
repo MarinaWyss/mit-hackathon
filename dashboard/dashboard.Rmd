@@ -57,7 +57,7 @@ indVars <- c("population_estimates_july_1_2019__v2019",
              "republican_governor",
              "voted_trump_2016_percent",
              "prison_rate_per_100k",
-             "total_incarcerated_persons" )
+             "total_incarcerated_persons")
 ```
 
 State Scorecard 
